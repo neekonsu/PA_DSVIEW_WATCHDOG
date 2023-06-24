@@ -14,6 +14,7 @@ Options:
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"time"
@@ -79,6 +80,5 @@ func main() {
 	close(stopCh)
 	time.Sleep(time.Second)
 	fmt.Println("Program interrupted by system.")
-
 
 }
