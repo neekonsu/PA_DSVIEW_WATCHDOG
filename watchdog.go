@@ -13,7 +13,11 @@ Options:
 */
 package main
 
-import "time"
+import (
+	"os"
+	"os/signal"
+	"time"
+)
 
 /*
 TODO:
@@ -28,8 +32,14 @@ func poller(stopCh chan struct{}) {
 	defer ticker.Stop()
 	for range ticker.C {
 		freshFiles()
+		storage()
 		dsview()
 		powerautomate()
+		select {
+		case <-stopCh:
+			return
+		default:
+		}
 	}
 }
 
@@ -55,5 +65,20 @@ func powerautomate() {
 
 // main : indefinitely awaits the stop signal or external termination and notifies Slack before exiting.
 func main() {
+	stopCh := make(chan struct{})
+	go poller(stopCh)
+
+	// Create a channel to receive os interrupt signals
+	osSignals := make(chan os.Signal, 1)
+	signal.Notify(osSignals, os.Interrupt)
+
+	// Wait for an os interrupt signal
+	<-osSignals
+
+	// Interrupt the poller goroutine and wait before exiting
+	close(stopCh)
+	time.Sleep(time.Second)
+	fmt.Println("Program interrupted by system.")
+
 
 }
