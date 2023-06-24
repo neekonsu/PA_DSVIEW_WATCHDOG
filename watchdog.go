@@ -4,11 +4,11 @@ watchdog notifies silent stoppages of the Power Automate + DSView laboratory set
 The watchdog expects the path used to log DSView (digital logic analyzer) output (.dsl files). Crashes will be pushed to the #power-automate-slackbot channel in Presidio Medical Slack.
 
 Usage:
-watchdog [--path PATH]
+watchdog [PATH]
 
 Options:
 
-	--path	Absolute or relative path to DSView output directory.
+	PATH	Absolute or relative path to DSView output directory.
 			Default: "$HOME"
 */
 package main
@@ -31,7 +31,7 @@ TODO:
 */
 
 // poller : efficient channel-based polling loop which calls atomic watchdog functions
-func poller(stopCh chan struct{}) {
+func poller(target string, stopCh chan struct{}) {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()
 	for range ticker.C {
@@ -69,6 +69,16 @@ func powerautomate() {
 
 // main : indefinitely awaits the stop signal or external termination and notifies Slack before exiting.
 func main() {
+	// Decide the directory to watch
+	path := os.Args[1]
+	TARGET, err := os.UserHomeDir();
+	if err != nil {
+		log.Fatal("Failed to get user home directory")
+	}
+	if path != "" {
+		TARGET = os.Args[1]
+	}
+	
 	// Get current process handle (Windows Process) to address parameters
 	handle := windows.CurrentProcess()
 
@@ -79,7 +89,7 @@ func main() {
 
 	// Create a channel for intentional interrupts and deploy poller on this signal
 	stopCh := make(chan struct{})
-	go poller(stopCh)
+	go poller(TARGET, stopCh)
 
 	// Create a channel to receive os interrupt signals
 	osSignals := make(chan os.Signal, 1)
