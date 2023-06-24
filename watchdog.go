@@ -13,6 +13,8 @@ Options:
 */
 package main
 
+import "time"
+
 /*
 TODO:
 	stop signal : stop signal should be a struct containing the reason for stoppage, enabling main goroutine to generate informative Slack message before exiting
@@ -20,23 +22,34 @@ TODO:
 	^C exit : handle manual termination/interruption of main goroutine through terminal with special Slack message informing "user quit the program on PM-XXX/USER"
 */
 
-// poller : efficient channel-based polling loop which calls atomic watchdog checks
-func poller() {
+// poller : efficient channel-based polling loop which calls atomic watchdog functions
+func poller(stopCh chan struct{}) {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+	for range ticker.C {
+		freshFiles()
+		dsview()
+		powerautomate()
+	}
+}
+
+// freshFiles : timeout if new data is not logged in target directory after 1.5 logging cycles (15min) by checking time since most recent file creation in path
+func freshFiles() {
 
 }
 
-// fileTimeout : timeout if new data is not logged in target directory after 1.5 logging cycles (15min) by checking time since most recent file creation in path
-func fileFrequency() {
+// storage : check for remaining storage and throw err if less than 10G is free
+func storage() {
 
 }
 
-// dsvOpen : check status of DSView and throw err if DSView is closed
-func dsvOpen() {
+// dsview : check status of DSView and throw err if DSView is closed
+func dsview() {
 
 }
 
-// paOpen : check status of Power Automate and throw err if Power Automate is closed
-func paOpen() {
+// powerautomate : check status of Power Automate and throw err if Power Automate is closed
+func powerautomate() {
 
 }
 
