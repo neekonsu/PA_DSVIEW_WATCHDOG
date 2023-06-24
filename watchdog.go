@@ -13,21 +13,34 @@ Options:
 */
 package main
 
-// fileTimeout : timeout if new data is not logged in target directory after 1.5 logging cycles (15min)
-func fileTimeout() {
+/*
+TODO:
+	stop signal : stop signal should be a struct containing the reason for stoppage, enabling main goroutine to generate informative Slack message before exiting
+	external SIGTERM : handle termination of main goroutine with special Slack message for catching unforseen crash of this watchdog
+	^C exit : handle manual termination/interruption of main goroutine through terminal with special Slack message informing "user quit the program on PM-XXX/USER"
+*/
+
+// poller : efficient channel-based polling loop which calls atomic watchdog checks
+func poller() {
 
 }
 
-// dsvOpen : poll status of DSView and throw err if DSView is closed
+// fileTimeout : timeout if new data is not logged in target directory after 1.5 logging cycles (15min) by checking time since most recent file creation in path
+func fileFrequency() {
+
+}
+
+// dsvOpen : check status of DSView and throw err if DSView is closed
 func dsvOpen() {
 
 }
 
-// paOpen : poll status of Power Automate and throw err if Power Automate is closed
+// paOpen : check status of Power Automate and throw err if Power Automate is closed
 func paOpen() {
 
 }
 
+// main : indefinitely awaits the stop signal or external termination and notifies Slack before exiting.
 func main() {
 
 }
