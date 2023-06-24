@@ -15,9 +15,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"time"
+
+	"golang.org/x/sys/windows"
 )
 
 /*
@@ -66,6 +69,19 @@ func powerautomate() {
 
 // main : indefinitely awaits the stop signal or external termination and notifies Slack before exiting.
 func main() {
+	// Get current process handle (Windows Process) to address parameters
+	handle, err := windows.GetCurrentProcess()
+	if err != nil {
+		log.Fatal("Failed to get current process handle:", err)
+	}
+
+	// Set low system priority (Windows PriorityClass) of main goroutine to prevent reentrant errors
+	err = windows.SetPriorityClass(handle, windows.BELOW_NORMAL_PRIORITY_CLASS)
+	if err != nil {
+		log.Fatal("Failed to set priority class:", err)
+	}
+
+	// Create a channel for intentional interrupts and deploy poller on this signal
 	stopCh := make(chan struct{})
 	go poller(stopCh)
 
