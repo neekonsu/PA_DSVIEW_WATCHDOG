@@ -95,8 +95,13 @@ func getFreeSpace(path string) (uint64, error) {
 	totalBytes := uint64(0)
 	totalFreeBytes := uint64(0)
 
-	_, _, err := getDiskFreeSpaceEx.Call(
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(path))),
+	utfPath, err := syscall.UTF16PtrFromString(path)
+	if err != nil {
+		log.Fatal("Failed to convert 'path' to UTF16 String in 'getFreeSpace'")
+	}
+
+	_, _, err = getDiskFreeSpaceEx.Call(
+		uintptr(unsafe.Pointer(utfPath)),
 		uintptr(unsafe.Pointer(&freeBytesAvailable)),
 		uintptr(unsafe.Pointer(&totalBytes)),
 		uintptr(unsafe.Pointer(&totalFreeBytes)),
